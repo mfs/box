@@ -13,7 +13,7 @@ struct CPU {                   // actual register size
     program_counter_2: u16,    // u12
     program_counter_3: u16,    // u12
 
-    index_registers: [u8; 16], // u12
+    index_registers: [u8; 16], // u4
 }
 
 
