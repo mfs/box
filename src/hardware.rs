@@ -4,16 +4,18 @@
 // individual ROM/RAM chips. I'll just emulate the entire memory space and
 // bank switching will just be an offset or something.
 
+const ROM_SIZE: usize = 4096;
+
 pub struct Hardware {
     // The 4004 can control 16 4001 ROMs. Each ROM contains 256 x 8bit words.
     // 16 * 256 x 8bit words = 4096 x 8bit words.
-    rom: [u8; 4096]
+    rom: [u8; ROM_SIZE]
 }
 
 impl Hardware {
     pub fn new() -> Hardware {
         Hardware {
-            rom: [0; 4096]
+            rom: [0; ROM_SIZE]
         }
     }
 
