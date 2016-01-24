@@ -1,0 +1,10 @@
+pass 1: done
+pass 2
+
+0000:        FIM P0 $A2      20 A2
+0002:        LD  R0          A0
+0003:        ADD R1          81
+0004:        XCH R1          B1
+0005: DONE
+0005:        JUN DONE        40 05
+done.
