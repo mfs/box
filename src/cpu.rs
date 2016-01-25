@@ -50,13 +50,16 @@ impl CPU {
         self.program_counter += 1;
 
         match opr {
-            0x2 => {
+            0x2 => { // FIM
                 let r0 = opa;
                 let (d2, d1) = self.rom_read_nibbles(self.program_counter);
                 // could make a write_register_pair() function.
                 self.index_registers[r0 as usize] = d2;
                 self.index_registers[(r0 + 1) as usize] = d1;
                 self.program_counter += 1;
+            },
+            0xa => { // LD
+                self.accumulator = self.index_registers[opa as usize];
             },
             _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
         }
