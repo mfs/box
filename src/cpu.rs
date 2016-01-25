@@ -50,6 +50,9 @@ impl CPU {
         self.program_counter += 1;
 
         match opr {
+            0x0 => { // NOP
+                // what if opa != 0? Still a NOP?
+            },
             0x2 => { // FIM
                 let r0 = opa;
                 let (d2, d1) = self.rom_read_nibbles(self.program_counter);
