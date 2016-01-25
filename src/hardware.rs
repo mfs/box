@@ -8,6 +8,7 @@
 // 16 * 256 x 8bit words = 4096 x 8bit words.
 const ROM_SIZE: usize = 4096;
 
+#[derive(Debug)]
 pub struct Hardware {
     rom: Vec<u8>
 }

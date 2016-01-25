@@ -14,7 +14,7 @@ fn main() {
     let hardware = hardware::Hardware::new(rom);
     let cpu = cpu::CPU::new(hardware);
 
-    println!("{}", cpu);
+    println!("{:#?}", cpu);
 }
 
 fn read_rom(file_name: &str) -> Vec<u8>{

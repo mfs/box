@@ -5,7 +5,8 @@ use hardware::Hardware;
 // fit into the standard integer types. Comments below show actual size of the
 // registers. Not sure how to best handle this.
 
-pub struct CPU {                   // actual register size
+#[derive(Debug)]
+pub struct CPU {               // actual register size
     accumulator: u8,           // u4
     carry: bool,               // u1
 
