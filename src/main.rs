@@ -12,9 +12,9 @@ fn main() {
     let rom = read_rom(&rom_file_name);
 
     let hardware = hardware::Hardware::new(rom);
-    let cpu = cpu::CPU::new(hardware);
+    let mut cpu = cpu::CPU::new(hardware);
+    cpu.run();
 
-    println!("{:#?}", cpu);
 }
 
 fn read_rom(file_name: &str) -> Vec<u8>{

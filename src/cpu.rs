@@ -1,4 +1,6 @@
 use std::fmt;
+use std::thread::sleep;
+use std::time::Duration;
 use hardware::Hardware;
 
 // The 4004 is a 4 bit data / 12 bit address CPU therefore it doesn't really
@@ -34,6 +36,23 @@ impl CPU {
             hardware: hardware
         }
     }
+
+    pub fn run(&mut self) {
+        loop {
+            println!("{:#?}", self);
+            self.run_instruction();
+            sleep(Duration::from_millis(10));
+        }
+    }
+
+    fn run_instruction(&mut self) {
+        let opcode = self.hardware.rom_read_byte(self.program_counter);
+        match opcode {
+            _ => panic!("Unrecognized instruction: {:02x}", opcode),
+        }
+    }
+
+
 }
 
 impl fmt::Display for CPU {
