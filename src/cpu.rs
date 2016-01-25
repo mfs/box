@@ -46,29 +46,27 @@ impl CPU {
     }
 
     fn run_instruction(&mut self) {
-        let opcode = self.hardware.rom_read_byte(self.program_counter);
+        let (opr, opa) = self.rom_read_nibbles(self.program_counter);
         self.program_counter += 1;
-        let opr = (opcode >> 4) & 0b1111;
-        let opa = opcode & 0b1111;
-
-        // could make a read_nibble fn.
-        // need to optimize this
 
         match opr {
             0x2 => {
                 let r0 = opa;
-                let data = self.hardware.rom_read_byte(self.program_counter);
-                self.program_counter += 1;
-                let d2 = (data >> 4) & 0b1111;
-                let d1 = data & 0b1111;
+                let (d2, d1) = self.rom_read_nibbles(self.program_counter);
+                // could make a write_register_pair() function.
                 self.index_registers[r0 as usize] = d2;
                 self.index_registers[(r0 + 1) as usize] = d1;
+                self.program_counter += 1;
             },
-            _   => panic!("Unrecognized instruction: {:02x}", opcode),
+            _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
         }
     }
 
+    fn rom_read_nibbles(&self, address: u16) -> (u8, u8) {
+        let byte = self.hardware.rom_read_byte(address);
 
+        ((byte >> 4) & 0b1111, byte & 0b1111)
+    }
 }
 
 impl fmt::Display for CPU {
