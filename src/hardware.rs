@@ -24,8 +24,4 @@ impl Hardware {
     pub fn rom_read_byte(&self, address: u16) -> u8 {
         self.rom[address as usize] & 0b1111 // shouldn't need to mask here
     }
-
-    pub fn rom_write_byte(&mut self, address: u16, value: u8) {
-        self.rom[address as usize] = value & 0b1111; // shouldn't need to mask here
-    }
 }
