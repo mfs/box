@@ -81,6 +81,9 @@ impl CPU {
                 self.accumulator = self.index_registers[opa as usize];
                 self.index_registers[opa as usize] = tmp;
             },
+            0xd => { // LDM
+                self.accumulator = opa;
+            },
             _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
         }
     }
