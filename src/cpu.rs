@@ -61,8 +61,19 @@ impl CPU {
                 self.index_registers[(r0 + 1) as usize] = d1;
                 self.program_counter += 1;
             },
+            0x8 => { // ADD
+                let mut sum: u8 = self.index_registers[opa as usize] + self.accumulator;
+                if self.carry { sum += 1; }
+                self.accumulator = sum & 0b1111;
+                if sum > 15 { self.carry = true; }
+            },
             0xa => { // LD
                 self.accumulator = self.index_registers[opa as usize];
+            },
+            0xb => { // XCH
+                let tmp: u8 = self.accumulator;
+                self.accumulator = self.index_registers[opa as usize];
+                self.index_registers[opa as usize] = tmp;
             },
             _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
         }
