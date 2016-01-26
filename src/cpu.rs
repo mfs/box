@@ -61,6 +61,12 @@ impl CPU {
                 self.index_registers[(r0 + 1) as usize] = d1;
                 self.program_counter += 1;
             },
+            0x4 => { // JUN
+                let (a2, a1) = self.rom_read_nibbles(self.program_counter);
+                self.program_counter = ((opa as u16) << 8) +
+                                       ((a2 as u16) << 4) +
+                                       a1 as u16;
+            },
             0x8 => { // ADD
                 let mut sum: u8 = self.index_registers[opa as usize] + self.accumulator;
                 if self.carry { sum += 1; }
