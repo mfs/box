@@ -50,40 +50,13 @@ impl CPU {
         self.program_counter += 1;
 
         match opr {
-            0x0 => { // NOP
-                // what if opa != 0? Still a NOP?
-            },
-            0x2 => { // FIM
-                let r0 = opa;
-                let (d2, d1) = self.rom_read_nibbles(self.program_counter);
-                // could make a write_register_pair() function.
-                self.index_registers[r0 as usize] = d2;
-                self.index_registers[(r0 + 1) as usize] = d1;
-                self.program_counter += 1;
-            },
-            0x4 => { // JUN
-                let (a2, a1) = self.rom_read_nibbles(self.program_counter);
-                self.program_counter = ((opa as u16) << 8) +
-                                       ((a2 as u16) << 4) +
-                                       a1 as u16;
-            },
-            0x8 => { // ADD
-                let mut sum: u8 = self.index_registers[opa as usize] + self.accumulator;
-                if self.carry { sum += 1; }
-                self.accumulator = sum & 0b1111;
-                if sum > 15 { self.carry = true; }
-            },
-            0xa => { // LD
-                self.accumulator = self.index_registers[opa as usize];
-            },
-            0xb => { // XCH
-                let tmp: u8 = self.accumulator;
-                self.accumulator = self.index_registers[opa as usize];
-                self.index_registers[opa as usize] = tmp;
-            },
-            0xd => { // LDM
-                self.accumulator = opa;
-            },
+            0x0 => { }, // NOP What if opa != 0? Still a NOP?
+            0x2 => self.opr_fin(opa),
+            0x4 => self.opr_jun(opa),
+            0x8 => self.opr_add(opa),
+            0xa => self.opr_ld(opa),
+            0xb => self.opr_xch(opa),
+            0xd => self.opr_ldm(opa),
             _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
         }
     }
@@ -92,6 +65,44 @@ impl CPU {
         let byte = self.hardware.rom_read_byte(address);
 
         ((byte >> 4) & 0b1111, byte & 0b1111)
+    }
+
+    // =========================V operands in order V=========================
+
+    fn opr_fin(&mut self, opa: u8) {
+        let (d2, d1) = self.rom_read_nibbles(self.program_counter);
+        // could make a write_register_pair() function.
+        self.index_registers[opa as usize] = d2;
+        self.index_registers[(opa + 1) as usize] = d1;
+        self.program_counter += 1;
+    }
+
+    fn opr_jun(&mut self, opa: u8) {
+        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
+        self.program_counter = ((opa as u16) << 8)
+                             + ((a2 as u16) << 4)
+                             + a1 as u16;
+    }
+
+    fn opr_add(&mut self, opa: u8) {
+        let mut sum: u8 = self.index_registers[opa as usize] + self.accumulator;
+        if self.carry { sum += 1; }
+        self.accumulator = sum & 0b1111;
+        if sum > 15 { self.carry = true; }
+    }
+
+    fn opr_ld(&mut self, opa: u8) {
+        self.accumulator = self.index_registers[opa as usize];
+    }
+
+    fn opr_xch(&mut self, opa: u8) {
+        let tmp: u8 = self.accumulator;
+        self.accumulator = self.index_registers[opa as usize];
+        self.index_registers[opa as usize] = tmp;
+    }
+
+    fn opr_ldm(&mut self, opa: u8) {
+        self.accumulator = opa;
     }
 }
 
