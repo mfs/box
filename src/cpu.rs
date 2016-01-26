@@ -57,6 +57,13 @@ impl CPU {
             0xa => self.opr_ld(opa),
             0xb => self.opr_xch(opa),
             0xd => self.opr_ldm(opa),
+            0xf => { // Accumulator Group Instructions
+                match opa {
+                    0x0 => { self.accumulator = 0; self.carry = false;  },
+                    0x1 => { self.carry = false;  },
+                    _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
+                }
+            },
             _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
         }
     }
