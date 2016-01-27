@@ -59,8 +59,10 @@ impl CPU {
             0xd => self.opr_ldm(opa),
             0xf => { // Accumulator Group Instructions
                 match opa {
-                    0x0 => { self.accumulator = 0; self.carry = false;  },
-                    0x1 => { self.carry = false;  },
+                    0x0 => { self.accumulator = 0; self.carry = false; }, // CLB
+                    0x1 => { self.carry = false;  }, // CLC
+                    0x3 => { self.carry = !self.carry;  }, // CMC
+                    0x9 => { self.carry = true;  }, // STC
                     _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
                 }
             },
