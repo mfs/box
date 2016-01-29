@@ -120,20 +120,20 @@ impl fmt::Display for CPU {
         write!(f, "acc: {:x} carry: {} pc: {:03x} pc1: {:03x} pc2: {:03x} pc3: {:03x}\n",
                self.accumulator, self.carry, self.program_counter,
                self.program_counter_1, self.program_counter_2,
-               self.program_counter_3);
+               self.program_counter_3).unwrap();
 
         // tidy this up later
         write!(f, "r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}\n",
                0, self.index_registers[0], 1, self.index_registers[1],
                2, self.index_registers[2], 3, self.index_registers[3],
                4, self.index_registers[4], 5, self.index_registers[5],
-               6, self.index_registers[6], 7, self.index_registers[7]);
+               6, self.index_registers[6], 7, self.index_registers[7]).unwrap();
 
         write!(f, "r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}\n",
                8, self.index_registers[8], 9, self.index_registers[9],
                10, self.index_registers[10], 11, self.index_registers[11],
                12, self.index_registers[12], 13, self.index_registers[13],
-               14, self.index_registers[14], 15, self.index_registers[15]);
+               14, self.index_registers[14], 15, self.index_registers[15]).unwrap();
 
         Ok(()) // wrong, fix properly.
     }
