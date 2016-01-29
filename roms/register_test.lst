@@ -1,0 +1,38 @@
+pass 1: done
+pass 2
+
+0000:        LDM $00         D0
+0001:        XCH $00         B0
+0002:        LDM $01         D1
+0003:        XCH $01         B1
+0004:        LDM $02         D2
+0005:        XCH $02         B2
+0006:        LDM $03         D3
+0007:        XCH $03         B3
+0008:        LDM $04         D4
+0009:        XCH $04         B4
+000A:        LDM $05         D5
+000B:        XCH $05         B5
+000C:        LDM $06         D6
+000D:        XCH $06         B6
+000E:        LDM $07         D7
+000F:        XCH $07         B7
+0010:        LDM $08         D8
+0011:        XCH $08         B8
+0012:        LDM $09         D9
+0013:        XCH $09         B9
+0014:        LDM $0A         DA
+0015:        XCH $0A         BA
+0016:        LDM $0B         DB
+0017:        XCH $0B         BB
+0018:        LDM $0C         DC
+0019:        XCH $0C         BC
+001A:        LDM $0D         DD
+001B:        XCH $0D         BD
+001C:        LDM $0E         DE
+001D:        XCH $0E         BE
+001E:        LDM $0F         DF
+001F:        XCH $0F         BF
+0020: DONE
+0020:        JUN DONE        40 20
+done.
