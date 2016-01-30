@@ -62,7 +62,10 @@ impl CPU {
                     0x0 => { self.accumulator = 0; self.carry = false; }, // CLB
                     0x1 => { self.carry = false;  }, // CLC
                     0x3 => { self.carry = !self.carry;  }, // CMC
+                    0x7 => self.opa_tcc(),
+                    0x9 => self.opa_tcs(),
                     0xa => { self.carry = true;  }, // STC
+                    0xc => self.opa_kbp(),
                     _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
                 }
             },
@@ -112,6 +115,35 @@ impl CPU {
 
     fn opr_ldm(&mut self, opa: u8) {
         self.accumulator = opa;
+    }
+
+    // =================V accumulator group instructions in order V=================
+
+    fn opa_tcc(&mut self) {
+        self.accumulator = match self.carry {
+            false => 0,
+            true  => 1,
+        };
+        self.carry = false;
+    }
+
+    fn opa_tcs(&mut self) {
+        self.accumulator = match self.carry {
+            false => 0b1001,
+            true  => 0b1010,
+        };
+        self.carry = false;
+    }
+
+    fn opa_kbp(&mut self) {
+        self.accumulator = match self.accumulator {
+            0b0000 => 0b0000,
+            0b0001 => 0b0001,
+            0b0010 => 0b0010,
+            0b0100 => 0b0011,
+            0b1000 => 0b0100,
+            _      => 0b1111,
+        };
     }
 }
 
