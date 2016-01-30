@@ -65,6 +65,7 @@ impl CPU {
                     0x7 => self.opa_tcc(),
                     0x9 => self.opa_tcs(),
                     0xa => { self.carry = true;  }, // STC
+                    0xb => self.opa_daa(),
                     0xc => self.opa_kbp(),
                     _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
                 }
@@ -133,6 +134,17 @@ impl CPU {
             true  => 0b1010,
         };
         self.carry = false;
+    }
+
+    fn opa_daa(&mut self) {
+        if self.carry && self.accumulator > 9 {
+            self.accumulator += 6;
+        }
+
+        if self.accumulator > 15 {
+            self.accumulator -= 16;
+            self.carry = true;
+        }
     }
 
     fn opa_kbp(&mut self) {
