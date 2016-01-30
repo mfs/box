@@ -62,6 +62,8 @@ impl CPU {
                     0x0 => { self.accumulator = 0; self.carry = false; }, // CLB
                     0x1 => { self.carry = false;  }, // CLC
                     0x3 => { self.carry = !self.carry;  }, // CMC
+                    0x5 => self.opa_ral(),
+                    0x6 => self.opa_rar(),
                     0x7 => self.opa_tcc(),
                     0x9 => self.opa_tcs(),
                     0xa => { self.carry = true;  }, // STC
@@ -119,6 +121,28 @@ impl CPU {
     }
 
     // =================V accumulator group instructions in order V=================
+
+
+    fn opa_ral(&mut self) {
+        self.accumulator <<= 1;
+        if self.carry {
+            self.accumulator += 1;
+        }
+        self.carry = match self.accumulator & 0b10000 {
+            0b10000 => true,
+            _       => false,
+        };
+        self.accumulator &= 0b1111;
+    }
+
+    fn opa_rar(&mut self) {
+        let tmp = self.accumulator & 1 == 1;
+        self.accumulator >>= 1;
+        if self.carry {
+            self.accumulator &= 0b1000;
+        }
+        self.carry = tmp;
+    }
 
     fn opa_tcc(&mut self) {
         self.accumulator = match self.carry {
