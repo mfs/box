@@ -66,6 +66,7 @@ impl CPU {
                     0x0 => { self.accumulator = 0; self.carry = false; }, // CLB
                     0x1 => { self.carry = false;  }, // CLC
                     0x3 => { self.carry = !self.carry;  }, // CMC
+                    0x4 => { self.accumulator = !self.accumulator & 0b1111; }, // CMA
                     0x5 => self.opa_ral(),
                     0x6 => self.opa_rar(),
                     0x7 => self.opa_tcc(),
