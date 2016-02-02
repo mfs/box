@@ -20,6 +20,9 @@ pub struct CPU {               // actual register size
 
     index_registers: [u8; 16], // u4
 
+    // internal register used for ram bank switching
+    command_control_register: u8,
+
     hardware: Hardware
 }
 
@@ -33,6 +36,7 @@ impl CPU {
             program_counter_2: 0,
             program_counter_3: 0,
             index_registers: [0; 16],
+            command_control_register: 0,
             hardware: hardware
         }
     }
@@ -69,6 +73,7 @@ impl CPU {
                     0xa => { self.carry = true;  }, // STC
                     0xb => self.opa_daa(),
                     0xc => self.opa_kbp(),
+                    0xd => self.opa_dcl(),
                     _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
                 }
             },
@@ -180,6 +185,10 @@ impl CPU {
             0b1000 => 0b0100,
             _      => 0b1111,
         };
+    }
+
+    fn opa_dcl(&mut self) {
+        self.command_control_register = self.accumulator & 0b111;
     }
 }
 
