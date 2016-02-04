@@ -63,17 +63,17 @@ impl CPU {
             0xd => self.opr_ldm(opa),
             0xf => { // Accumulator Group Instructions
                 match opa {
-                    0x0 => { self.accumulator = 0; self.carry = false; }, // CLB
-                    0x1 => { self.carry = false;  }, // CLC
+                    0x0 => self.opa_clb(),
+                    0x1 => self.opa_clc(),
                     0x2 => self.opa_iac(),
-                    0x3 => { self.carry = !self.carry;  }, // CMC
-                    0x4 => { self.accumulator = !self.accumulator & 0b1111; }, // CMA
+                    0x3 => self.opa_cmc(),
+                    0x4 => self.opa_cma(),
                     0x5 => self.opa_ral(),
                     0x6 => self.opa_rar(),
                     0x7 => self.opa_tcc(),
                     0x8 => self.opa_dac(),
                     0x9 => self.opa_tcs(),
-                    0xa => { self.carry = true;  }, // STC
+                    0xa => self.opa_stc(),
                     0xb => self.opa_daa(),
                     0xc => self.opa_kbp(),
                     0xd => self.opa_dcl(),
@@ -130,6 +130,15 @@ impl CPU {
 
     // =================V accumulator group instructions in order V=================
 
+    fn opa_clb(&mut self) {
+        self.accumulator = 0;
+        self.carry = false;
+    }
+
+    fn opa_clc(&mut self) {
+        self.carry = false;
+    }
+
     fn opa_iac(&mut self) {
         self.accumulator += 1;
 
@@ -139,6 +148,14 @@ impl CPU {
         } else {
             self.carry = false;
         }
+    }
+
+    fn opa_cmc(&mut self) {
+        self.carry = !self.carry;
+    }
+
+    fn opa_cma(&mut self) {
+        self.accumulator = !self.accumulator & 0b1111;
     }
 
     fn opa_ral(&mut self) {
@@ -186,6 +203,10 @@ impl CPU {
             true  => 0b1010,
         };
         self.carry = false;
+    }
+
+    fn opa_stc(&mut self) {
+        self.carry = true;
     }
 
     fn opa_daa(&mut self) {
