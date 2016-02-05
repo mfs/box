@@ -25,6 +25,10 @@ pub struct CPU {               // actual register size
     // internal register used for ram bank switching
     command_control_register: u8,
 
+    // internal registers for RAM/ROM/IO selection
+    ram_address_register_0: u8,
+    ram_address_register_1: u8,
+
     hardware: Hardware
 }
 
@@ -39,6 +43,8 @@ impl CPU {
             program_counter_3: 0,
             index_registers: [0; NUM_INDEX_REGISTERS],
             command_control_register: 0,
+            ram_address_register_0: 0,
+            ram_address_register_1: 0,
             hardware: hardware
         }
     }
@@ -70,6 +76,7 @@ impl CPU {
 
         match opr {
             0x0 => { }, // NOP What if opa != 0? Still a NOP?
+            0x2 => self.opr_src(opa),
             0x3 => self.opr_fin(opa),
             0x4 => self.opr_jun(opa),
             0x8 => self.opr_add(opa),
@@ -107,6 +114,12 @@ impl CPU {
     }
 
     // =========================V operands in order V=========================
+
+
+    fn opr_src(&mut self, opa: u8) {
+        self.ram_address_register_0 = self.index_registers[(opa & 0b1110) as usize];
+        self.ram_address_register_1 = self.index_registers[(opa & 0b1111) as usize];
+    }
 
     fn opr_fin(&mut self, opa: u8) {
         let (d2, d1) = self.rom_read_nibbles(self.program_counter);
