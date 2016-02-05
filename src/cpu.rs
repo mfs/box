@@ -7,6 +7,8 @@ use hardware::Hardware;
 // fit into the standard integer types. Comments below show actual size of the
 // registers. Not sure how to best handle this.
 
+const NUM_INDEX_REGISTERS: usize = 16;
+
 #[derive(Debug)]
 pub struct CPU {               // actual register size
     accumulator: u8,           // u4
@@ -18,7 +20,7 @@ pub struct CPU {               // actual register size
     program_counter_2: u16,    // u12
     program_counter_3: u16,    // u12
 
-    index_registers: [u8; 16], // u4
+    index_registers: [u8; NUM_INDEX_REGISTERS], // u4
 
     // internal register used for ram bank switching
     command_control_register: u8,
@@ -35,10 +37,23 @@ impl CPU {
             program_counter_1: 0,
             program_counter_2: 0,
             program_counter_3: 0,
-            index_registers: [0; 16],
+            index_registers: [0; NUM_INDEX_REGISTERS],
             command_control_register: 0,
             hardware: hardware
         }
+    }
+
+    pub fn _reset(&mut self) {
+        self.accumulator = 0;
+        self.carry = false;
+        self.program_counter = 0;
+        self.program_counter_1 = 0;
+        self.program_counter_2 = 0;
+        self.program_counter_3 = 0;
+        for x in 0..NUM_INDEX_REGISTERS {
+            self.index_registers[x] = 0;
+        }
+        self.command_control_register = 0;
     }
 
     pub fn run(&mut self) {
