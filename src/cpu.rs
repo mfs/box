@@ -70,7 +70,7 @@ impl CPU {
 
         match opr {
             0x0 => { }, // NOP What if opa != 0? Still a NOP?
-            0x2 => self.opr_fin(opa),
+            0x3 => self.opr_fin(opa),
             0x4 => self.opr_jun(opa),
             0x8 => self.opr_add(opa),
             0x9 => self.opr_sub(opa),
