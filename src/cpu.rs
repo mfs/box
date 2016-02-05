@@ -73,6 +73,7 @@ impl CPU {
             0x2 => self.opr_fin(opa),
             0x4 => self.opr_jun(opa),
             0x8 => self.opr_add(opa),
+            0x9 => self.opr_sub(opa),
             0xa => self.opr_ld(opa),
             0xb => self.opr_xch(opa),
             0xd => self.opr_ldm(opa),
@@ -127,6 +128,13 @@ impl CPU {
         if self.carry { sum += 1; }
         self.accumulator = sum & 0b1111;
         if sum > 15 { self.carry = true; }
+    }
+
+    fn opr_sub(&mut self, opa: u8) {
+        self.accumulator = self.accumulator + !self.index_registers[opa as usize];
+        if !self.carry { self.accumulator += 1; }
+        if self.accumulator > 15 { self.carry = true; }
+        self.accumulator &= 0b1111;
     }
 
     fn opr_ld(&mut self, opa: u8) {
