@@ -77,7 +77,11 @@ impl CPU {
         match opr {
             0x0 => { }, // NOP What if opa != 0? Still a NOP?
             0x2 => self.opr_src(opa),
-            0x3 => self.opr_fin(opa),
+            0x3 => match opa & 0b0001 {
+                0 => self.opr_fin(opa),
+                1 => self.opr_jin(opa),
+                _ => panic!(), // remove compile error
+            },
             0x4 => self.opr_jun(opa),
             0x8 => self.opr_add(opa),
             0x9 => self.opr_sub(opa),
@@ -127,6 +131,15 @@ impl CPU {
         self.index_registers[opa as usize] = d2;
         self.index_registers[(opa + 1) as usize] = d1;
         self.program_counter += 1;
+    }
+
+    fn opr_jin(&mut self, opa: u8) {
+        // we already incremented the pc so don't need to worry about the
+        // ROM boundary as mentioned in the docs.
+        let ph = self.program_counter >> 8;
+        let pm = self.index_registers[(opa & 0b1110) as usize];
+        let pl = self.index_registers[(opa & 0b1111) as usize];
+        self.program_counter = (ph << 8) + ((pm as u16) << 4) + (pl as u16);
     }
 
     fn opr_jun(&mut self, opa: u8) {
