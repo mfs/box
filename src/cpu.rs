@@ -1,6 +1,7 @@
 use std::fmt;
 use std::thread::sleep;
 use std::time::Duration;
+use std::collections::VecDeque;
 use hardware::Hardware;
 
 // The 4004 is a 4 bit data / 12 bit address CPU therefore it doesn't really
@@ -8,6 +9,7 @@ use hardware::Hardware;
 // registers. Not sure how to best handle this.
 
 const NUM_INDEX_REGISTERS: usize = 16;
+const NUM_STACK_REGISTERS: usize = 3;
 
 #[derive(Debug)]
 pub struct CPU {               // actual register size
@@ -16,9 +18,7 @@ pub struct CPU {               // actual register size
 
     program_counter: u16,      // u12
 
-    program_counter_1: u16,    // u12
-    program_counter_2: u16,    // u12
-    program_counter_3: u16,    // u12
+    program_counter_stack: VecDeque<u16>,
 
     index_registers: [u8; NUM_INDEX_REGISTERS], // u4
 
@@ -38,9 +38,7 @@ impl CPU {
             accumulator: 0,
             carry: false,
             program_counter: 0,
-            program_counter_1: 0,
-            program_counter_2: 0,
-            program_counter_3: 0,
+            program_counter_stack: VecDeque::with_capacity(NUM_STACK_REGISTERS),
             index_registers: [0; NUM_INDEX_REGISTERS],
             command_control_register: 0,
             ram_address_register_0: 0,
@@ -53,9 +51,7 @@ impl CPU {
         self.accumulator = 0;
         self.carry = false;
         self.program_counter = 0;
-        self.program_counter_1 = 0;
-        self.program_counter_2 = 0;
-        self.program_counter_3 = 0;
+        self.program_counter_stack.clear();
         for x in 0..NUM_INDEX_REGISTERS {
             self.index_registers[x] = 0;
         }
@@ -83,10 +79,12 @@ impl CPU {
                 _ => panic!(), // remove compile error
             },
             0x4 => self.opr_jun(opa),
+            0x5 => self.opr_jms(opa),
             0x8 => self.opr_add(opa),
             0x9 => self.opr_sub(opa),
             0xa => self.opr_ld(opa),
             0xb => self.opr_xch(opa),
+            0xc => self.opr_bbl(opa),
             0xd => self.opr_ldm(opa),
             0xf => { // Accumulator Group Instructions
                 match opa {
@@ -115,6 +113,20 @@ impl CPU {
         let byte = self.hardware.rom_read_byte(address);
 
         ((byte >> 4) & 0b1111, byte & 0b1111)
+    }
+
+    fn program_counter_stack_push(&mut self) {
+        if self.program_counter_stack.len() == NUM_STACK_REGISTERS {
+            self.program_counter_stack.pop_back();
+        }
+        self.program_counter_stack.push_front(self.program_counter);
+    }
+
+    fn program_counter_stack_pop(&mut self) {
+        self.program_counter = match self.program_counter_stack.pop_front() {
+            Some(x) => x,
+            None    => panic!("Program counter stack underflow.")
+        };
     }
 
     // =========================V operands in order V=========================
@@ -149,6 +161,14 @@ impl CPU {
                              + a1 as u16;
     }
 
+    fn opr_jms(&mut self, opa: u8) {
+        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
+        self.program_counter_stack_push();
+        self.program_counter = ((opa as u16) << 8)
+                             + ((a2 as u16) << 4)
+                             + a1 as u16;
+    }
+
     fn opr_add(&mut self, opa: u8) {
         let mut sum: u8 = self.index_registers[opa as usize] + self.accumulator;
         if self.carry { sum += 1; }
@@ -171,6 +191,11 @@ impl CPU {
         let tmp: u8 = self.accumulator;
         self.accumulator = self.index_registers[opa as usize];
         self.index_registers[opa as usize] = tmp;
+    }
+
+    fn opr_bbl(&mut self, opa: u8) {
+        self.program_counter_stack_pop();
+        self.accumulator = opa;
     }
 
     fn opr_ldm(&mut self, opa: u8) {
@@ -287,10 +312,10 @@ impl CPU {
 
 impl fmt::Display for CPU {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "acc: {:x} carry: {} pc: {:03x} pc1: {:03x} pc2: {:03x} pc3: {:03x}\n",
+        write!(f, "acc: {:x} carry: {} pc: {:03x} pc stack: {:?}\n",
                self.accumulator, self.carry, self.program_counter,
-               self.program_counter_1, self.program_counter_2,
-               self.program_counter_3).unwrap();
+               self.program_counter_stack
+               ).unwrap();
 
         // tidy this up later
         write!(f, "r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}\n",
