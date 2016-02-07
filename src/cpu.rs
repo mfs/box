@@ -80,6 +80,7 @@ impl CPU {
             },
             0x4 => self.opr_jun(opa),
             0x5 => self.opr_jms(opa),
+            0x7 => self.opr_isz(opa),
             0x8 => self.opr_add(opa),
             0x9 => self.opr_sub(opa),
             0xa => self.opr_ld(opa),
@@ -167,6 +168,17 @@ impl CPU {
         self.program_counter = ((opa as u16) << 8)
                              + ((a2 as u16) << 4)
                              + a1 as u16;
+    }
+
+    fn opr_isz(&mut self, opa: u8) {
+        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
+        self.program_counter += 1;
+        self.index_registers[opa as usize] = (self.index_registers[opa as usize] + 1) % 16;
+
+        if self.index_registers[opa as usize] != 0 {
+            let ph = self.program_counter >> 8;
+            self.program_counter = (ph << 8) + ((a2 as u16) << 4) + (a1 as u16);
+        }
     }
 
     fn opr_add(&mut self, opa: u8) {
