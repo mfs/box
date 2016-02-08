@@ -72,6 +72,7 @@ impl CPU {
 
         match opr {
             0x0 => { }, // NOP What if opa != 0? Still a NOP?
+            0x1 => self.opr_jcn(opa),
             0x2 => self.opr_src(opa),
             0x3 => match opa & 0b0001 {
                 0 => self.opr_fin(opa),
@@ -132,6 +133,22 @@ impl CPU {
 
     // =========================V operands in order V=========================
 
+    fn opr_jcn(&mut self, opa: u8) {
+        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
+        self.program_counter += 1;
+
+        let invert_cond = opa & 0b1000 == 0b1000;
+        let accumulator_cond = (self.accumulator == 0) && (opa & 0b0100 == 0b0100);
+        let carry_cond  = (self.carry) && (opa & 0b0010 == 0b0010);
+        let test_signal_cond = false && (opa & 0b0001 == 0b0001); // TODO implement
+
+        let cond = accumulator_cond || carry_cond || test_signal_cond;
+
+        if (!invert_cond && cond) || (invert_cond && !cond) {
+            let ph = self.program_counter >> 8;
+            self.program_counter = (ph << 8) + ((a2 as u16) << 4) + (a1 as u16);
+        }
+    }
 
     fn opr_src(&mut self, opa: u8) {
         self.ram_address_register_0 = self.index_registers[(opa & 0b1110) as usize];
