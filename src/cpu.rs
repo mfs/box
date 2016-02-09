@@ -67,8 +67,7 @@ impl CPU {
     }
 
     fn run_instruction(&mut self) {
-        let (opr, opa) = self.rom_read_nibbles(self.program_counter);
-        self.program_counter += 1;
+        let (opr, opa) = self.rom_read_nibbles();
 
         match opr {
             0x0 => { }, // NOP What if opa != 0? Still a NOP?
@@ -111,8 +110,9 @@ impl CPU {
         }
     }
 
-    fn rom_read_nibbles(&self, address: u16) -> (u8, u8) {
-        let byte = self.hardware.rom_read_byte(address);
+    fn rom_read_nibbles(&mut self) -> (u8, u8) {
+        let byte = self.hardware.rom_read_byte(self.program_counter);
+        self.program_counter += 1;
 
         ((byte >> 4) & 0b1111, byte & 0b1111)
     }
@@ -134,8 +134,7 @@ impl CPU {
     // =========================V operands in order V=========================
 
     fn opr_jcn(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
-        self.program_counter += 1;
+        let (a2, a1) = self.rom_read_nibbles();
 
         let invert_cond = opa & 0b1000 == 0b1000;
         let accumulator_cond = (self.accumulator == 0) && (opa & 0b0100 == 0b0100);
@@ -156,7 +155,7 @@ impl CPU {
     }
 
     fn opr_fin(&mut self, opa: u8) {
-        let (d2, d1) = self.rom_read_nibbles(self.program_counter);
+        let (d2, d1) = self.rom_read_nibbles();
         // could make a write_register_pair() function.
         self.index_registers[opa as usize] = d2;
         self.index_registers[(opa + 1) as usize] = d1;
@@ -173,14 +172,14 @@ impl CPU {
     }
 
     fn opr_jun(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
+        let (a2, a1) = self.rom_read_nibbles();
         self.program_counter = ((opa as u16) << 8)
                              + ((a2 as u16) << 4)
                              + a1 as u16;
     }
 
     fn opr_jms(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
+        let (a2, a1) = self.rom_read_nibbles();
         self.program_counter_stack_push();
         self.program_counter = ((opa as u16) << 8)
                              + ((a2 as u16) << 4)
@@ -188,8 +187,7 @@ impl CPU {
     }
 
     fn opr_isz(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles(self.program_counter);
-        self.program_counter += 1;
+        let (a2, a1) = self.rom_read_nibbles();
         self.index_registers[opa as usize] = (self.index_registers[opa as usize] + 1) % 16;
 
         if self.index_registers[opa as usize] != 0 {
