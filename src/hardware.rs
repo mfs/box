@@ -6,18 +6,22 @@
 
 // The 4004 can control 16 4001 ROMs. Each ROM contains 256 x 8bit words.
 // 16 * 256 x 8bit words = 4096 x 8bit words.
+use ram::Ram;
+
 const ROM_SIZE: usize = 4096;
 
 #[derive(Debug)]
 pub struct Hardware {
-    rom: Vec<u8>
+    rom: Vec<u8>,
+    ram: Ram
 }
 
 impl Hardware {
     pub fn new(rom: Vec<u8>) -> Hardware {
         assert!(rom.len() <= ROM_SIZE);
         Hardware {
-            rom: rom
+            rom: rom,
+            ram: Ram::new()
         }
     }
 
