@@ -26,8 +26,8 @@ pub struct CPU {               // actual register size
     command_control_register: u8,
 
     // internal registers for RAM/ROM/IO selection
-    ram_address_register_0: u8,
-    ram_address_register_1: u8,
+    ram_address_register_0: u8, // sent at X2
+    ram_address_register_1: u8, // sent at X3
 
     hardware: Hardware
 }
@@ -87,6 +87,10 @@ impl CPU {
             0xb => self.opr_xch(opa),
             0xc => self.opr_bbl(opa),
             0xd => self.opr_ldm(opa),
+            0xe => match opa {
+                0x9 => self.opa_rdm(),
+                _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
+            },
             0xf => { // Accumulator Group Instructions
                 match opa {
                     0x0 => self.opa_clb(),
@@ -108,6 +112,14 @@ impl CPU {
             },
             _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
         }
+    }
+
+    fn ram_read_nibble(&self) -> u8 {
+        let chip = self.ram_address_register_0 >> 2;
+        let register = self.ram_address_register_0 & 0b0011;
+        let character = self.ram_address_register_1;
+
+        self.hardware.ram_read_char(chip, register, character)
     }
 
     fn rom_read_nibbles(&mut self) -> (u8, u8) {
@@ -227,6 +239,12 @@ impl CPU {
 
     fn opr_ldm(&mut self, opa: u8) {
         self.accumulator = opa;
+    }
+
+    // =================V  input/output & RAM instructions V=================
+
+    fn opa_rdm(&mut self) {
+        self.accumulator = self.ram_read_nibble();
     }
 
     // =================V accumulator group instructions in order V=================

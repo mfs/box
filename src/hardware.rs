@@ -28,4 +28,9 @@ impl Hardware {
     pub fn rom_read_byte(&self, address: u16) -> u8 {
         self.rom[address as usize]
     }
+
+    // only one chip at the moment
+    pub fn ram_read_char(&self, _chip: u8, register: u8, character: u8) -> u8 {
+        self.ram.read_char(register, character)
+    }
 }

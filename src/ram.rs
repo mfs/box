@@ -30,4 +30,8 @@ impl Ram {
             NUM_OF_REGISTERS ]
         }
     }
+
+    pub fn read_char(&self, register: u8, character: u8) -> u8 {
+        self.registers[register as usize].main[character as usize]
+    }
 }
