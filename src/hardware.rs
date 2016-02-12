@@ -33,4 +33,8 @@ impl Hardware {
     pub fn ram_read_char(&self, _chip: u8, register: u8, character: u8) -> u8 {
         self.ram.read_char(register, character)
     }
+
+    pub fn ram_read_status(&self, _chip: u8, register: u8, status: u8) -> u8 {
+        self.ram.read_status(register, status)
+    }
 }

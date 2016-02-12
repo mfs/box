@@ -89,6 +89,10 @@ impl CPU {
             0xd => self.opr_ldm(opa),
             0xe => match opa {
                 0x9 => self.opa_rdm(),
+                0xc => self.opa_rdn(0), // RD0
+                0xd => self.opa_rdn(1), // RD1
+                0xe => self.opa_rdn(2), // RD2
+                0xf => self.opa_rdn(3), // RD3
                 _   => panic!("Unrecognized instruction: {:0x}{:0x}", opr, opa),
             },
             0xf => { // Accumulator Group Instructions
@@ -120,6 +124,12 @@ impl CPU {
         let character = self.ram_address_register_1;
 
         self.hardware.ram_read_char(chip, register, character)
+    }
+
+    fn ram_read_status(&self, status: u8) -> u8 {
+        let chip = self.ram_address_register_0 >> 2;
+        let register = self.ram_address_register_0 & 0b0011;
+        self.hardware.ram_read_status(chip, register, status)
     }
 
     fn rom_read_nibbles(&mut self) -> (u8, u8) {
@@ -245,6 +255,10 @@ impl CPU {
 
     fn opa_rdm(&mut self) {
         self.accumulator = self.ram_read_nibble();
+    }
+
+    fn opa_rdn(&mut self, n: u8) { // RD0, RD1, etc
+        self.accumulator = self.ram_read_status(n);
     }
 
     // =================V accumulator group instructions in order V=================

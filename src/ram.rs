@@ -34,4 +34,8 @@ impl Ram {
     pub fn read_char(&self, register: u8, character: u8) -> u8 {
         self.registers[register as usize].main[character as usize]
     }
+
+    pub fn read_status(&self, register: u8, status: u8) -> u8 {
+        self.registers[register as usize].status[status as usize]
+    }
 }
