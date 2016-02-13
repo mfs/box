@@ -10,12 +10,12 @@ const STATUS_MEM_SIZE: usize = 4;
 struct Register {
     main: [u8; MAIN_MEM_SIZE],     // 16 x 4bit chars main memory
     status: [u8; STATUS_MEM_SIZE], //  4 x 4bit status chars
-    output: u8                     //  1 x 4bit output port
 }
 
 #[derive(Debug)]
 pub struct Ram {
-    registers: [Register; NUM_OF_REGISTERS]
+    registers: [Register; NUM_OF_REGISTERS],
+    output: u8 //  1 x 4bit output port
 }
 
 impl Ram {
@@ -25,9 +25,9 @@ impl Ram {
                 Register {
                     main: [0; MAIN_MEM_SIZE],
                     status: [0; STATUS_MEM_SIZE],
-                    output: 0
                 };
-            NUM_OF_REGISTERS ]
+            NUM_OF_REGISTERS ],
+            output: 0
         }
     }
 
@@ -45,5 +45,9 @@ impl Ram {
 
     pub fn write_status(&mut self, register: u8, status: u8, value: u8) {
         self.registers[register as usize].status[status as usize] = value;
+    }
+
+    pub fn write_output(&mut self, value: u8) {
+        self.output = value;
     }
 }
