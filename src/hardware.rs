@@ -45,4 +45,8 @@ impl Hardware {
     pub fn ram_write_status(&mut self, _chip: u8, register: u8, status: u8, value: u8) {
         self.ram.write_status(register, status, value)
     }
+
+    pub fn ram_write_output(&mut self, _chip: u8, value: u8) {
+        self.ram.write_output(value);
+    }
 }

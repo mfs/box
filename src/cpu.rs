@@ -89,6 +89,7 @@ impl CPU {
             0xd => self.opr_ldm(opa),
             0xe => match opa {
                 0x0 => self.opa_wrm(),
+                0x1 => self.opa_wmp(),
                 0x4 => self.opa_wrn(0),
                 0x5 => self.opa_wrn(1),
                 0x6 => self.opa_wrn(2),
@@ -151,6 +152,10 @@ impl CPU {
         self.hardware.ram_write_status(chip, register, status, value)
     }
 
+    fn ram_write_output(&mut self, value: u8) {
+        let chip = self.ram_address_register_0 >> 2;
+        self.hardware.ram_write_output(chip, value);
+    }
 
     fn rom_read_nibbles(&mut self) -> (u8, u8) {
         let byte = self.hardware.rom_read_byte(self.program_counter);
@@ -289,6 +294,11 @@ impl CPU {
     fn opa_wrn(&mut self, n: u8) { // WR0, WR1, etc
         let acc = self.accumulator;
         self.ram_write_status(n, acc);
+    }
+
+    fn opa_wmp(&mut self) {
+        let acc = self.accumulator;
+        self.ram_write_output(acc);
     }
 
     // =================V accumulator group instructions in order V=================
