@@ -1,5 +1,6 @@
 
 mod cpu;
+mod rom;
 mod ram;
 mod hardware;
 
