@@ -35,7 +35,15 @@ impl Ram {
         self.registers[register as usize].main[character as usize]
     }
 
+    pub fn write_char(&mut self, register: u8, character: u8, value: u8) {
+        self.registers[register as usize].main[character as usize] = value;
+    }
+
     pub fn read_status(&self, register: u8, status: u8) -> u8 {
         self.registers[register as usize].status[status as usize]
+    }
+
+    pub fn write_status(&mut self, register: u8, status: u8, value: u8) {
+        self.registers[register as usize].status[status as usize] = value;
     }
 }

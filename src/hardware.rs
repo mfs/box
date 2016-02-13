@@ -34,7 +34,15 @@ impl Hardware {
         self.ram.read_char(register, character)
     }
 
+    pub fn ram_write_char(&mut self, _chip: u8, register: u8, character: u8, value: u8) {
+        self.ram.write_char(register, character, value)
+    }
+
     pub fn ram_read_status(&self, _chip: u8, register: u8, status: u8) -> u8 {
         self.ram.read_status(register, status)
+    }
+
+    pub fn ram_write_status(&mut self, _chip: u8, register: u8, status: u8, value: u8) {
+        self.ram.write_status(register, status, value)
     }
 }

@@ -88,6 +88,11 @@ impl CPU {
             0xc => self.opr_bbl(opa),
             0xd => self.opr_ldm(opa),
             0xe => match opa {
+                0x0 => self.opa_wrm(),
+                0x4 => self.opa_wrn(0),
+                0x5 => self.opa_wrn(1),
+                0x6 => self.opa_wrn(2),
+                0x7 => self.opa_wrn(3),
                 0x9 => self.opa_rdm(),
                 0xc => self.opa_rdn(0), // RD0
                 0xd => self.opa_rdn(1), // RD1
@@ -126,11 +131,26 @@ impl CPU {
         self.hardware.ram_read_char(chip, register, character)
     }
 
+    fn ram_write_nibble(&mut self, value: u8) {
+        let chip = self.ram_address_register_0 >> 2;
+        let register = self.ram_address_register_0 & 0b0011;
+        let character = self.ram_address_register_1;
+
+        self.hardware.ram_write_char(chip, register, character, value)
+    }
+
     fn ram_read_status(&self, status: u8) -> u8 {
         let chip = self.ram_address_register_0 >> 2;
         let register = self.ram_address_register_0 & 0b0011;
         self.hardware.ram_read_status(chip, register, status)
     }
+
+    fn ram_write_status(&mut self, status: u8, value: u8) {
+        let chip = self.ram_address_register_0 >> 2;
+        let register = self.ram_address_register_0 & 0b0011;
+        self.hardware.ram_write_status(chip, register, status, value)
+    }
+
 
     fn rom_read_nibbles(&mut self) -> (u8, u8) {
         let byte = self.hardware.rom_read_byte(self.program_counter);
@@ -257,8 +277,18 @@ impl CPU {
         self.accumulator = self.ram_read_nibble();
     }
 
+    fn opa_wrm(&mut self) {
+        let acc = self.accumulator;
+        self.ram_write_nibble(acc);
+    }
+
     fn opa_rdn(&mut self, n: u8) { // RD0, RD1, etc
         self.accumulator = self.ram_read_status(n);
+    }
+
+    fn opa_wrn(&mut self, n: u8) { // WR0, WR1, etc
+        let acc = self.accumulator;
+        self.ram_write_status(n, acc);
     }
 
     // =================V accumulator group instructions in order V=================
