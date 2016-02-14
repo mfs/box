@@ -90,11 +90,13 @@ impl CPU {
             0xe => match opa {
                 0x0 => self.opa_wrm(),
                 0x1 => self.opa_wmp(),
+                0x2 => self.opa_wrr(),
                 0x4 => self.opa_wrn(0),
                 0x5 => self.opa_wrn(1),
                 0x6 => self.opa_wrn(2),
                 0x7 => self.opa_wrn(3),
                 0x9 => self.opa_rdm(),
+                0xa => self.opa_rdr(),
                 0xc => self.opa_rdn(0), // RD0
                 0xd => self.opa_rdn(1), // RD1
                 0xe => self.opa_rdn(2), // RD2
@@ -162,6 +164,16 @@ impl CPU {
         self.program_counter += 1;
 
         ((byte >> 4) & 0b1111, byte & 0b1111)
+    }
+
+    fn rom_read_port(&self) -> u8 {
+        let chip = self.ram_address_register_0 >> 2;
+        self.hardware.rom_read_port(chip)
+    }
+
+    fn rom_write_port(&mut self, value: u8) {
+        let chip = self.ram_address_register_0 >> 2;
+        self.hardware.rom_write_port(chip, value);
     }
 
     fn program_counter_stack_push(&mut self) {
@@ -291,9 +303,18 @@ impl CPU {
         self.accumulator = self.ram_read_status(n);
     }
 
+    fn opa_rdr(&mut self) {
+        self.accumulator = self.rom_read_port();
+    }
+
     fn opa_wrn(&mut self, n: u8) { // WR0, WR1, etc
         let acc = self.accumulator;
         self.ram_write_status(n, acc);
+    }
+
+    fn opa_wrr(&mut self) {
+        let acc = self.accumulator;
+        self.rom_write_port(acc);
     }
 
     fn opa_wmp(&mut self) {

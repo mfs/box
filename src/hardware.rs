@@ -30,6 +30,15 @@ impl Hardware {
         self.rom.read_word(address as u8)
     }
 
+    pub fn rom_read_port(&self, _chip: u8) -> u8 {
+        self.rom.read_port()
+    }
+
+    pub fn rom_write_port(&mut self, _chip: u8, value: u8) {
+        self.rom.write_port(value)
+    }
+
+
     // only one chip at the moment
     pub fn ram_read_char(&self, _chip: u8, register: u8, character: u8) -> u8 {
         self.ram.read_char(register, character)

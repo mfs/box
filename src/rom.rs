@@ -42,4 +42,13 @@ impl Rom {
     pub fn read_word(&self, address: u8) -> u8 {
         self.words[address as usize]
     }
+
+    pub fn read_port(&self) -> u8 {
+        self.in_out
+    }
+
+    pub fn write_port(&mut self, value: u8) {
+        self.in_out = value;
+    }
+
 }
