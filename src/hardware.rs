@@ -26,7 +26,7 @@ impl Hardware {
         }
     }
 
-    pub fn rom_read_byte(&self, address: u16) -> u8 {
+    pub fn rom_read_word(&self, address: u16) -> u8 {
         self.rom.read_word(address as u8)
     }
 

@@ -160,10 +160,10 @@ impl CPU {
     }
 
     fn rom_read_nibbles(&mut self) -> (u8, u8) {
-        let byte = self.hardware.rom_read_byte(self.program_counter);
+        let word = self.hardware.rom_read_word(self.program_counter);
         self.program_counter += 1;
 
-        ((byte >> 4) & 0b1111, byte & 0b1111)
+        ((word >> 4) & 0b1111, word & 0b1111)
     }
 
     fn rom_read_port(&self) -> u8 {
