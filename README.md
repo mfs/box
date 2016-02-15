@@ -8,4 +8,14 @@ some ROMs using the assembler located [here][szyc].
 I wasn't intending to emulate the individual RAM chips though I may end up doing
 this due to the close relationship of some of the instructions to the hardware.
 
+### Data Types
+
+The 4004 is a 4 bit CPU. Characters are 4 bit, words are 8 bit, addresses are 12 bit.
+
+| Type    | Bits | Rust Type |
+|---------|-----:|----------:|
+| char    | 4    | u8        |
+| word    | 8    | u8        |
+| address | 12   | u16       |
+
 [szyc]: http://e4004.szyc.org/index_en.html
