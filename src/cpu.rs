@@ -126,7 +126,7 @@ impl CPU {
         }
     }
 
-    fn ram_read_nibble(&self) -> u8 {
+    fn ram_read_char(&self) -> u8 {
         let chip = self.ram_address_register_0 >> 2;
         let register = self.ram_address_register_0 & 0b0011;
         let character = self.ram_address_register_1;
@@ -134,7 +134,7 @@ impl CPU {
         self.hardware.ram_read_char(chip, register, character)
     }
 
-    fn ram_write_nibble(&mut self, value: u8) {
+    fn ram_write_char(&mut self, value: u8) {
         let chip = self.ram_address_register_0 >> 2;
         let register = self.ram_address_register_0 & 0b0011;
         let character = self.ram_address_register_1;
@@ -291,12 +291,12 @@ impl CPU {
     // =================V  input/output & RAM instructions V=================
 
     fn opa_rdm(&mut self) {
-        self.accumulator = self.ram_read_nibble();
+        self.accumulator = self.ram_read_char();
     }
 
     fn opa_wrm(&mut self) {
         let acc = self.accumulator;
-        self.ram_write_nibble(acc);
+        self.ram_write_char(acc);
     }
 
     fn opa_rdn(&mut self, n: u8) { // RD0, RD1, etc
