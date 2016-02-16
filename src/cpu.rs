@@ -67,7 +67,7 @@ impl CPU {
     }
 
     fn run_instruction(&mut self) {
-        let (opr, opa) = self.rom_read_nibbles();
+        let (opr, opa) = self.rom_read_word();
 
         match opr {
             0x0 => { }, // NOP What if opa != 0? Still a NOP?
@@ -159,7 +159,7 @@ impl CPU {
         self.hardware.ram_write_output(chip, value);
     }
 
-    fn rom_read_nibbles(&mut self) -> (u8, u8) {
+    fn rom_read_word(&mut self) -> (u8, u8) {
         let word = self.hardware.rom_read_word(self.program_counter);
         self.program_counter += 1;
 
@@ -193,7 +193,7 @@ impl CPU {
     // =========================V operands in order V=========================
 
     fn opr_jcn(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles();
+        let (a2, a1) = self.rom_read_word();
 
         let invert_cond = opa & 0b1000 == 0b1000;
         let accumulator_cond = (self.accumulator == 0) && (opa & 0b0100 == 0b0100);
@@ -214,7 +214,7 @@ impl CPU {
     }
 
     fn opr_fin(&mut self, opa: u8) {
-        let (d2, d1) = self.rom_read_nibbles();
+        let (d2, d1) = self.rom_read_word();
         // could make a write_register_pair() function.
         self.index_registers[opa as usize] = d2;
         self.index_registers[(opa + 1) as usize] = d1;
@@ -231,14 +231,14 @@ impl CPU {
     }
 
     fn opr_jun(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles();
+        let (a2, a1) = self.rom_read_word();
         self.program_counter = ((opa as u16) << 8)
                              + ((a2 as u16) << 4)
                              + a1 as u16;
     }
 
     fn opr_jms(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles();
+        let (a2, a1) = self.rom_read_word();
         self.program_counter_stack_push();
         self.program_counter = ((opa as u16) << 8)
                              + ((a2 as u16) << 4)
@@ -246,7 +246,7 @@ impl CPU {
     }
 
     fn opr_isz(&mut self, opa: u8) {
-        let (a2, a1) = self.rom_read_nibbles();
+        let (a2, a1) = self.rom_read_word();
         self.index_registers[opa as usize] = (self.index_registers[opa as usize] + 1) % 16;
 
         if self.index_registers[opa as usize] != 0 {
