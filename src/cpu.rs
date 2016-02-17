@@ -325,9 +325,9 @@ impl CPU {
     }
 
     fn opa_adm(&mut self) {
-        let mut sum: u8 = self.ram_read_char() + self.accumulator;
-        if self.carry { sum += 1; }
-        if sum > 15 {
+        self.accumulator = self.ram_read_char() + self.accumulator;
+        if self.carry { self.accumulator += 1; }
+        if self.accumulator > 15 {
             self.carry = true;
         } else {
             self.carry = false;
