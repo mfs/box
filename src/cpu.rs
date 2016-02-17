@@ -95,9 +95,10 @@ impl CPU {
                 0x5 => self.opa_wrn(1),
                 0x6 => self.opa_wrn(2),
                 0x7 => self.opa_wrn(3),
-                0x8 => self.opa_adm(),
+                0x8 => self.opa_sbm(),
                 0x9 => self.opa_rdm(),
                 0xa => self.opa_rdr(),
+                0xb => self.opa_adm(),
                 0xc => self.opa_rdn(0), // RD0
                 0xd => self.opa_rdn(1), // RD1
                 0xe => self.opa_rdn(2), // RD2
@@ -333,6 +334,18 @@ impl CPU {
         }
         self.accumulator &= 0b1111;
     }
+
+    fn opa_sbm(&mut self) {
+        self.accumulator = self.accumulator + !self.ram_read_char();
+        if !self.carry { self.accumulator += 1; }
+        if self.accumulator > 15 {
+            self.carry = true;
+        } else {
+            self.carry = false;
+        }
+        self.accumulator &= 0b1111;
+    }
+
 
     // =================V accumulator group instructions in order V=================
 
