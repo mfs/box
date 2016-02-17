@@ -95,6 +95,7 @@ impl CPU {
                 0x5 => self.opa_wrn(1),
                 0x6 => self.opa_wrn(2),
                 0x7 => self.opa_wrn(3),
+                0x8 => self.opa_adm(),
                 0x9 => self.opa_rdm(),
                 0xa => self.opa_rdr(),
                 0xc => self.opa_rdn(0), // RD0
@@ -320,6 +321,17 @@ impl CPU {
     fn opa_wmp(&mut self) {
         let acc = self.accumulator;
         self.ram_write_output(acc);
+    }
+
+    fn opa_adm(&mut self) {
+        let mut sum: u8 = self.ram_read_char() + self.accumulator;
+        if self.carry { sum += 1; }
+        if sum > 15 {
+            self.carry = true;
+        } else {
+            self.carry = false;
+        }
+        self.accumulator &= 0b1111;
     }
 
     // =================V accumulator group instructions in order V=================
