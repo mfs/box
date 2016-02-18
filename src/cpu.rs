@@ -91,10 +91,10 @@ impl CPU {
                 0x0 => self.opa_wrm(),
                 0x1 => self.opa_wmp(),
                 0x2 => self.opa_wrr(),
-                0x4 => self.opa_wrn(0),
-                0x5 => self.opa_wrn(1),
-                0x6 => self.opa_wrn(2),
-                0x7 => self.opa_wrn(3),
+                0x4 => self.opa_wrn(0), // WR0
+                0x5 => self.opa_wrn(1), // WR1
+                0x6 => self.opa_wrn(2), // WR2
+                0x7 => self.opa_wrn(3), // WR3
                 0x8 => self.opa_sbm(),
                 0x9 => self.opa_rdm(),
                 0xa => self.opa_rdr(),
