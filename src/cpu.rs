@@ -72,7 +72,11 @@ impl CPU {
         match opr {
             0x0 => { }, // NOP What if opa != 0? Still a NOP?
             0x1 => self.opr_jcn(opa),
-            0x2 => self.opr_src(opa),
+            0x2 => match opa & 0b0001 {
+                0 => self.opr_fim(opa),
+                1 => self.opr_src(opa),
+                _ => panic!(), // remove compile error
+            },
             0x3 => match opa & 0b0001 {
                 0 => self.opr_fin(opa),
                 1 => self.opr_jin(opa),
@@ -255,6 +259,12 @@ impl CPU {
             let ph = self.program_counter >> 8;
             self.program_counter = (ph << 8) + ((a2 as u16) << 4) + (a1 as u16);
         }
+    }
+
+    fn opr_fim(&mut self, opa: u8) {
+        let (d2, d1) = self.rom_read_word();
+        self.index_registers[opa as usize] = d2;
+        self.index_registers[(opa + 1) as usize] = d1;
     }
 
     fn opr_add(&mut self, opa: u8) {
