@@ -96,6 +96,7 @@ impl CPU {
                 0x0 => self.opa_wrm(),
                 0x1 => self.opa_wmp(),
                 0x2 => self.opa_wrr(),
+                0x3 => {}, // WPM - NOP for now. 4008/4009
                 0x4 => self.opa_wrn(0), // WR0
                 0x5 => self.opa_wrn(1), // WR1
                 0x6 => self.opa_wrn(2), // WR2
