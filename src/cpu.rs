@@ -14,7 +14,7 @@ const NUM_STACK_REGISTERS: usize = 3;
 #[derive(Debug)]
 pub struct CPU {               // actual register size
     accumulator: u8,           // u4
-    carry: bool,               // u1
+    carry: u8,                 // u1
 
     program_counter: u16,      // u12
 
@@ -36,7 +36,7 @@ impl CPU {
     pub fn new(hardware: Hardware) -> CPU {
         CPU {
             accumulator: 0,
-            carry: false,
+            carry: 0,
             program_counter: 0,
             program_counter_stack: VecDeque::with_capacity(NUM_STACK_REGISTERS),
             index_registers: [0; NUM_INDEX_REGISTERS],
@@ -49,7 +49,7 @@ impl CPU {
 
     pub fn _reset(&mut self) {
         self.accumulator = 0;
-        self.carry = false;
+        self.carry = 0;
         self.program_counter = 0;
         self.program_counter_stack.clear();
         for x in 0..NUM_INDEX_REGISTERS {
@@ -205,7 +205,7 @@ impl CPU {
 
         let invert_cond = opa & 0b1000 == 0b1000;
         let accumulator_cond = (self.accumulator == 0) && (opa & 0b0100 == 0b0100);
-        let carry_cond  = (self.carry) && (opa & 0b0010 == 0b0010);
+        let carry_cond  = (self.carry == 1) && (opa & 0b0010 == 0b0010);
         let test_signal_cond = false && (opa & 0b0001 == 0b0001); // TODO implement
 
         let cond = accumulator_cond || carry_cond || test_signal_cond;
@@ -270,16 +270,15 @@ impl CPU {
     }
 
     fn opr_add(&mut self, opa: u8) {
-        let mut sum: u8 = self.index_registers[opa as usize] + self.accumulator;
-        if self.carry { sum += 1; }
-        self.accumulator = sum & 0b1111;
-        if sum > 15 { self.carry = true; }
+        self.accumulator = self.index_registers[opa as usize] + self.accumulator + self.carry;
+        self.carry = self.accumulator >> 4;
+        self.accumulator &= 0b1111;
     }
 
     fn opr_sub(&mut self, opa: u8) {
-        self.accumulator = self.accumulator + !self.index_registers[opa as usize];
-        if !self.carry { self.accumulator += 1; }
-        if self.accumulator > 15 { self.carry = true; }
+        self.accumulator = self.accumulator +
+                          (self.index_registers[opa as usize] ^ 0b1111) + (self.carry ^1);
+        self.carry = self.accumulator >> 4;
         self.accumulator &= 0b1111;
     }
 
@@ -341,24 +340,14 @@ impl CPU {
     }
 
     fn opa_adm(&mut self) {
-        self.accumulator = self.ram_read_char() + self.accumulator;
-        if self.carry { self.accumulator += 1; }
-        if self.accumulator > 15 {
-            self.carry = true;
-        } else {
-            self.carry = false;
-        }
+        self.accumulator = self.ram_read_char() + self.accumulator + self.carry;
+        self.carry = self.accumulator >> 4;
         self.accumulator &= 0b1111;
     }
 
     fn opa_sbm(&mut self) {
-        self.accumulator = self.accumulator + !self.ram_read_char();
-        if !self.carry { self.accumulator += 1; }
-        if self.accumulator > 15 {
-            self.carry = true;
-        } else {
-            self.carry = false;
-        }
+        self.accumulator = (self.ram_read_char() ^ 0b1111) + self.accumulator + (self.carry ^ 1);
+        self.carry = self.accumulator >> 4;
         self.accumulator &= 0b1111;
     }
 
@@ -367,26 +356,21 @@ impl CPU {
 
     fn opa_clb(&mut self) {
         self.accumulator = 0;
-        self.carry = false;
+        self.carry = 0;
     }
 
     fn opa_clc(&mut self) {
-        self.carry = false;
+        self.carry = 0;
     }
 
     fn opa_iac(&mut self) {
         self.accumulator += 1;
-
-        if self.accumulator > 0b1111 {
-            self.accumulator = 0;
-            self.carry = true;
-        } else {
-            self.carry = false;
-        }
+        self.carry = self.accumulator >> 4;
+        self.accumulator &= 0b1111;
     }
 
     fn opa_cmc(&mut self) {
-        self.carry = !self.carry;
+        self.carry ^= 1;
     }
 
     fn opa_cma(&mut self) {
@@ -394,65 +378,46 @@ impl CPU {
     }
 
     fn opa_ral(&mut self) {
-        self.accumulator <<= 1;
-        if self.carry {
-            self.accumulator += 1;
-        }
-        self.carry = match self.accumulator & 0b10000 {
-            0b10000 => true,
-            _       => false,
-        };
+        self.accumulator = (self.accumulator << 1) + self.carry;
+        self.carry = self.accumulator >> 4;
         self.accumulator &= 0b1111;
     }
 
     fn opa_rar(&mut self) {
-        let tmp = self.accumulator & 1 == 1;
-        self.accumulator >>= 1;
-        if self.carry {
-            self.accumulator &= 0b1000;
-        }
-        self.carry = tmp;
+        let carry = self.accumulator & 0b0001;
+        self.accumulator = self.accumulator >> 1 + self.carry << 3;
+        self.carry = carry;
     }
 
     fn opa_tcc(&mut self) {
-        self.accumulator = match self.carry {
-            false => 0,
-            true  => 1,
-        };
-        self.carry = false;
+        self.accumulator = self.carry;
+        self.carry = 0;
     }
 
     fn opa_dac(&mut self) {
-        if self.accumulator == 0 {
-            self.accumulator = 0b1111;
-            self.carry = false;
-        } else {
-            self.accumulator -= 1;
-            self.carry = true;
-        }
+        self.accumulator += 0b1111;
+        self.carry = self.accumulator >> 4;
+        self.accumulator &= 0b1111;
     }
 
     fn opa_tcs(&mut self) {
         self.accumulator = match self.carry {
-            false => 0b1001,
-            true  => 0b1010,
+            0 => 0b1001,
+            1 => 0b1010,
+            _ => 0
         };
-        self.carry = false;
     }
 
     fn opa_stc(&mut self) {
-        self.carry = true;
+        self.carry = 1;
     }
 
     fn opa_daa(&mut self) {
-        if self.carry && self.accumulator > 9 {
+        if self.carry == 1 || self.accumulator > 9 {
             self.accumulator += 6;
         }
-
-        if self.accumulator > 15 {
-            self.accumulator -= 16;
-            self.carry = true;
-        }
+        self.carry = self.accumulator >> 4;
+        self.accumulator &= 0b1111;
     }
 
     fn opa_kbp(&mut self) {
