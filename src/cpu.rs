@@ -438,24 +438,22 @@ impl CPU {
 
 impl fmt::Display for CPU {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "acc: {:x} carry: {} pc: {:03x} pc stack: {:?}\n",
+        try!(write!(f, "acc: {:x} carry: {} pc: {:03x} pc stack: {:?}\n",
                self.accumulator, self.carry, self.program_counter,
                self.program_counter_stack
-               ).unwrap();
+               ));
 
         // tidy this up later
-        write!(f, "r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}\n",
+        try!(write!(f, "r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}\n",
                0, self.index_registers[0], 1, self.index_registers[1],
                2, self.index_registers[2], 3, self.index_registers[3],
                4, self.index_registers[4], 5, self.index_registers[5],
-               6, self.index_registers[6], 7, self.index_registers[7]).unwrap();
+               6, self.index_registers[6], 7, self.index_registers[7]));
 
         write!(f, "r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}   r{:02}: {:x} r{:02}: {:x}\n",
                8, self.index_registers[8], 9, self.index_registers[9],
                10, self.index_registers[10], 11, self.index_registers[11],
                12, self.index_registers[12], 13, self.index_registers[13],
-               14, self.index_registers[14], 15, self.index_registers[15]).unwrap();
-
-        Ok(()) // wrong, fix properly.
+               14, self.index_registers[14], 15, self.index_registers[15])
     }
 }
