@@ -20,7 +20,23 @@ jms 229 ; ck_idx
 ; ...
 
 
-* = 201 ; temp until rest of program entered
+* = 186 ; temp until rest of program entered
+
+; check adm instructions
+fim 0 0
+fim 0 16
+clb
+src 5
+wmp
+src 0
+adm
+inc r1
+src 1
+adm
+wrm
+isz r3 193
+
+
 ; at address 201
 src 5
 rd0
