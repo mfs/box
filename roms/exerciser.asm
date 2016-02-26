@@ -20,8 +20,21 @@ jms 229 ; ck_idx
 ; ...
 
 
+* = 201 ; temp until rest of program entered
+; at address 201
+src 5
+rd0
+jcn az 215 ; a=0 not sure how to assemble these conditionals
+ldm 8
+src 0
+wmp
+clb
+src 5
+wr0
+jcn tn 211 ; T=1
+jun 32
+
 ; subroutines
-* = 222 ; temp until rest of program entered
 
 ; at address 222
 ld_mk
